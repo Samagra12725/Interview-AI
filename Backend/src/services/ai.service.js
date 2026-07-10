@@ -1,7 +1,7 @@
 const { GoogleGenAI } = require("@google/genai");
 const { z } = require("zod");
 const { zodToJsonSchema } = require("zod-to-json-schema");
-const puppeteer = require("puppeteer");
+const pdf = require("html-pdf");
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_GENAI_API_KEY,
@@ -117,39 +117,32 @@ async function generateInterviewReport({
 }
 
 async function generatePdfFromHtml(htmlContent) {
-  try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--single-process",
-        "--no-first-run",
-        "--no-default-browser-check",
-      ],
-    });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+  return new Promise((resolve, reject) => {
+    try {
+      const options = {
+        format: "A4",
+        margin: {
+          top: "20mm",
+          bottom: "20mm",
+          left: "15mm",
+          right: "15mm",
+        },
+        timeout: 30000,
+      };
 
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      margin: {
-        top: "20mm",
-        bottom: "20mm",
-        left: "15mm",
-        right: "15mm",
-      },
-    });
-
-    await browser.close();
-
-    return pdfBuffer;
-  } catch (err) {
-    console.error("PDF Generation Error:", err.message);
-    throw new Error(`Failed to generate PDF: ${err.message}`);
-  }
+      pdf.create(htmlContent, options).toBuffer((err, buffer) => {
+        if (err) {
+          console.error("PDF Generation Error:", err.message);
+          reject(new Error(`Failed to generate PDF: ${err.message}`));
+        } else {
+          resolve(buffer);
+        }
+      });
+    } catch (err) {
+      console.error("PDF Generation Error:", err.message);
+      reject(new Error(`Failed to generate PDF: ${err.message}`));
+    }
+  });
 }
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
