@@ -90,8 +90,14 @@ $severity-low: #3fb950;
         padding: 1rem;
         flex-direction: row;
         justify-content: flex-start;
+        align-items: center;
         overflow-x: auto;
         gap: 0.5rem;
+    }
+
+    .primary-button {
+        align-self: center;
+        white-space: nowrap;
     }
 
     @media (max-width: 767px) {
@@ -589,17 +595,40 @@ $severity-low: #3fb950;
     @media (max-width: 1199px) {
         width: 100%;
         padding: 1.5rem;
-        gap: 1rem;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+
+        .sidebar-logout, .match-score, .skill-gaps {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     }
 
     @media (max-width: 767px) {
-        padding: 1rem 0.75rem;
-        gap: 0.75rem;
+        padding: 1.25rem 1rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.25rem;
+
+        .sidebar-logout, .match-score, .skill-gaps {
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .match-score {
+            align-items: center;
+        }
     }
 
     @media (max-width: 479px) {
-        padding: 0.75rem;
-        gap: 0.6rem;
+        padding: 1rem 0.75rem;
+        gap: 1rem;
     }
 }
 

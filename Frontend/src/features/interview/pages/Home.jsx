@@ -6,12 +6,18 @@ import { useAuth } from "../../auth/hooks/useAuth";
 
 const Home = () => {
   const { loading, generateReport, reports } = useInterview();
-  const { handleLogout } = useAuth();
+  const { handleLogout, user } = useAuth();
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const resumeInputRef = useRef();
 
   const navigate = useNavigate();
+
+  const getInitials = (name) => {
+    if (!name) return "?";
+    return name.slice(0, 2).toUpperCase();
+  };
 
   const handleLogoutClick = async () => {
     await handleLogout();
@@ -38,23 +44,35 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      {/* Page Header */}
-      <header className="page-header">
-        <div className="page-header__top">
-          <div>
-            <h1>
-              Create Your Custom{" "}
-              <span className="highlight">Interview Plan</span>
-            </h1>
-            <p>
-              Let our AI analyze the job requirements and your unique profile to
-              build a winning strategy.
-            </p>
-          </div>
+      {/* Top Navbar */}
+      <nav className="top-nav">
+        <div className="top-nav__logo">
+          <span className="logo-icon">✨</span>
+          <span className="logo-text">InterviewAI</span>
+        </div>
+        <div className="top-nav__actions">
           <button className="button logout-button" onClick={handleLogoutClick}>
             Logout
           </button>
+          <div className="user-profile" title={user?.username || "User"}>
+            <div className="user-avatar">
+              {getInitials(user?.username)}
+            </div>
+            <span className="user-name">{user?.username || "User"}</span>
+          </div>
         </div>
+      </nav>
+
+      {/* Page Header */}
+      <header className="page-header">
+        <h1>
+          Create Your Custom{" "}
+          <span className="highlight">Interview Plan</span>
+        </h1>
+        <p>
+          Let our AI analyze the job requirements and your unique profile to
+          build a winning strategy.
+        </p>
       </header>
 
       {/* Main Card */}
@@ -90,7 +108,7 @@ const Home = () => {
               placeholder={`Paste the full job description here...\ne.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'`}
               maxLength={5000}
             />
-            <div className="char-counter">0 / 5000 chars</div>
+            <div className="char-counter">{jobDescription.length} / 5000 chars</div>
           </div>
 
           {/* Vertical Divider */}
@@ -125,27 +143,47 @@ const Home = () => {
                 <span className="badge badge--best">Best Results</span>
               </label>
               <label className="dropzone" htmlFor="resume">
-                <span className="dropzone__icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="16 16 12 12 8 16" />
-                    <line x1="12" y1="12" x2="12" y2="21" />
-                    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-                  </svg>
-                </span>
-                <p className="dropzone__title">
-                  Click to upload or drag &amp; drop
-                </p>
-                <p className="dropzone__subtitle">PDF or DOCX (Max 5MB)</p>
+                {selectedFile ? (
+                  <div className="selected-file-info">
+                    <span className="file-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+                    </span>
+                    <p className="dropzone__title file-name">{selectedFile.name}</p>
+                    <p className="dropzone__subtitle">
+                      {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Click to change
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <span className="dropzone__icon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="28"
+                        height="28"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="16 16 12 12 8 16" />
+                        <line x1="12" y1="12" x2="12" y2="21" />
+                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+                      </svg>
+                    </span>
+                    <p className="dropzone__title">
+                      Click to upload or drag &amp; drop
+                    </p>
+                    <p className="dropzone__subtitle">PDF or DOCX (Max 5MB)</p>
+                  </>
+                )}
                 <input
                   ref={resumeInputRef}
                   hidden
@@ -153,6 +191,9 @@ const Home = () => {
                   id="resume"
                   name="resume"
                   accept=".pdf,.docx"
+                  onChange={(e) => {
+                    setSelectedFile(e.target.files[0] || null);
+                  }}
                 />
               </label>
             </div>
