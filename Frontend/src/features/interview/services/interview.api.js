@@ -1,7 +1,14 @@
 import axios from "axios";
 
+const getBaseURL = () => {
+    if (typeof window !== "undefined" && window.location.hostname.includes("onrender.com")) {
+        return "https://interview-ai-c0iw.onrender.com";
+    }
+    return import.meta.env.VITE_API_URL || "http://localhost:3000";
+};
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "https://interview-ai-c0iw.onrender.com",
+    baseURL: getBaseURL(),
     withCredentials: true,
 })
 
