@@ -15,6 +15,7 @@ export const useAuth = () => {
         try {
             const data = await login({ email, password })
             setUser(data.user)
+            localStorage.setItem("isLoggedIn", "true")
             return true
         } catch (err) {
             console.error(err)
@@ -30,6 +31,7 @@ export const useAuth = () => {
         try {
             const data = await register({ username, email, password })
             setUser(data.user)
+            localStorage.setItem("isLoggedIn", "true")
             return true
         } catch (err) {
             console.error(err)
@@ -45,6 +47,7 @@ export const useAuth = () => {
         try {
             const data = await logout()
             setUser(null)
+            localStorage.removeItem("isLoggedIn")
         } catch (err) {
 
         } finally {
@@ -55,11 +58,18 @@ export const useAuth = () => {
     useEffect(() => {
 
         const getAndSetUser = async () => {
-            try {
+            const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+            if (!isLoggedIn) {
+                setLoading(false);
+                return;
+            }
 
+            try {
                 const data = await getMe()
                 setUser(data.user)
-            } catch (err) { } finally {
+            } catch (err) {
+                localStorage.removeItem("isLoggedIn");
+            } finally {
                 setLoading(false)
             }
         }
