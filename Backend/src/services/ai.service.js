@@ -99,8 +99,8 @@ async function generateInterviewReport({
   jobDescription,
 }) {
   const prompt = `Generate an interview report for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
+                        Resume: ${resume || "Not provided"}
+                        Self Description: ${selfDescription || "Not provided"}
                         Job Description: ${jobDescription}
 `;
 
@@ -112,7 +112,8 @@ async function generateInterviewReport({
       responseSchema: zodToJsonSchema(interviewReportSchema),
     },
   });
-
+console.log(response.text);
+console.log(response.usageMetadata);
   return JSON.parse(response.text);
 }
 
@@ -156,8 +157,8 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
     });
 
     const prompt = `Generate resume for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
+                        Resume: ${resume || "Not provided"}
+                        Self Description: ${selfDescription || "Not provided"}
                         Job Description: ${jobDescription}
 
                         the response should be a JSON object with a single field "html" which contains the HTML content of the resume which can be converted to PDF using any library like puppeteer.

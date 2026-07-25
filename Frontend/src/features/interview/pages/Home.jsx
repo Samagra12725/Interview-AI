@@ -25,13 +25,28 @@ const Home = () => {
   };
 
   const handleGenerateReport = async () => {
-    const resumeFile = resumeInputRef.current.files[0];
+    const resumeFile = resumeInputRef.current ? resumeInputRef.current.files[0] : null;
+
+    if (!jobDescription || !jobDescription.trim()) {
+      alert("Please enter a Target Job Description.");
+      return;
+    }
+
+    if (!resumeFile && (!selfDescription || !selfDescription.trim())) {
+      alert("Please provide either a Resume or a Quick Self-Description.");
+      return;
+    }
+
     const data = await generateReport({
       jobDescription,
       selfDescription,
       resumeFile,
     });
-    navigate(`/interview/${data._id}`);
+    if (data && data._id) {
+      navigate(`/interview/${data._id}`);
+    } else {
+      alert("Failed to generate interview strategy. Please try again.");
+    }
   };
 
   if (loading) {
